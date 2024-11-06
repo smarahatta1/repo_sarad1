@@ -5,20 +5,36 @@
 @Author  : alexanderwu
 @File    : __init__.py
 """
+import importlib
+class LLMFactory:
+    def __init__(self, module_name, instance_name):
+        self.module_name = module_name
+        self.instance_name = instance_name
+        self._module = None
 
-from metagpt.provider.google_gemini_api import GeminiLLM
-from metagpt.provider.ollama_api import OllamaLLM
-from metagpt.provider.openai_api import OpenAILLM
-from metagpt.provider.zhipuai_api import ZhiPuAILLM
-from metagpt.provider.azure_openai_api import AzureOpenAILLM
-from metagpt.provider.metagpt_api import MetaGPTLLM
-from metagpt.provider.human_provider import HumanProvider
-from metagpt.provider.spark_api import SparkLLM
-from metagpt.provider.qianfan_api import QianFanLLM
-from metagpt.provider.dashscope_api import DashScopeLLM
-from metagpt.provider.anthropic_api import AnthropicLLM
-from metagpt.provider.bedrock_api import BedrockLLM
-from metagpt.provider.ark_api import ArkLLM
+    def __getattr__(self, name):
+        if self._module is None:
+            self._module = importlib.import_module(self.module_name)
+        return getattr(self._module, name)
+    def __instancecheck__(self, instance):
+        if self._module is None:
+            self._module = importlib.import_module(self.module_name)
+        return isinstance(instance, getattr(self._module, self.instance_name))
+
+    
+GeminiLLM = LLMFactory("metagpt.provider.google_gemini_api ", "GeminiLLM")
+OllamaLLM = LLMFactory("metagpt.provider.ollama_api ", "OllamaLLM")
+OpenAILLM = LLMFactory("metagpt.provider.openai_api ", "OpenAILLM")
+ZhiPuAILLM = LLMFactory("metagpt.provider.zhipuai_api ", "ZhiPuAILLM")
+AzureOpenAILLM = LLMFactory("metagpt.provider.azure_openai_api ", "AzureOpenAILLM")
+MetaGPTLLM = LLMFactory("metagpt.provider.metagpt_api ", "MetaGPTLLM")
+HumanProvider = LLMFactory("metagpt.provider.human_provider ", "HumanProvider")
+SparkLLM = LLMFactory("metagpt.provider.spark_api ", "SparkLLM")
+QianFanLLM = LLMFactory("metagpt.provider.qianfan_api ", "QianFanLLM")
+DashScopeLLM = LLMFactory("metagpt.provider.dashscope_api ", "DashScopeLLM")
+AnthropicLLM = LLMFactory("metagpt.provider.anthropic_api ", "AnthropicLLM")
+BedrockLLM = LLMFactory("metagpt.provider.bedrock_api ", "BedrockLLM")
+ArkLLM = LLMFactory("metagpt.provider.ark_api ", "ArkLLM")
 
 __all__ = [
     "GeminiLLM",
